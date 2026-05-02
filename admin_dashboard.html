@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="logo.png">
+  <title>Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #f4f6f9; color: #1f2937; min-height: 100vh;
+    }
+    .dashboard { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px; min-width: 240px;
+      background: #111827; color: #e5e7eb;
+      display: flex; flex-direction: column; padding: 24px 16px;
+    }
+    .sidebar-brand { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 32px; padding-left: 8px; }
+    .sidebar nav { flex: 1; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 8px; font-size: 14px; font-weight: 500;
+      color: #9ca3af; cursor: pointer; transition: background 0.2s, color 0.2s;
+      margin-bottom: 4px; border: none; background: none; width: 100%; text-align: left;
+    }
+    .nav-item:hover  { background: #1f2937; color: #e5e7eb; }
+    .nav-item.active { background: #1d4ed8; color: #fff; }
+    .logout-wrap { padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn {
+      width: 100%; padding: 10px 12px; border-radius: 8px;
+      background: #dc2626; color: #fff; border: none;
+      font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+    }
+    .logout-btn:hover { background: #b91c1c; }
+
+    /* ── Main ── */
+    .main { flex: 1; padding: 32px; overflow-y: auto; }
+    .topbar {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 10px;
+    }
+    .topbar h1 { font-size: 26px; font-weight: 700; color: #111827; }
+    .status-badge { background: #dcfce7; color: #166534; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+
+    /* ── Views ── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── KPI cards ── */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 28px; }
+    .card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+    .card h3 { font-size: 13px; color: #6b7280; margin-bottom: 8px; font-weight: 500; }
+    .card p  { font-size: 28px; font-weight: 700; color: #111827; }
+
+    /* ── Panel ── */
+    .panel { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 22px; margin-bottom: 24px; }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+    .panel-header h2 { font-size: 18px; font-weight: 700; color: #111827; }
+
+    /* ── LIVE badge ── */
+    .live-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 4px 12px; border-radius: 20px; }
+    .live-dot { width: 7px; height: 7px; background: #16a34a; border-radius: 50%; animation: pulse 1.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:.3; transform:scale(0.6); } }
+    .last-updated { font-size: 11px; color: #9ca3af; margin-bottom: 8px; text-align: right; }
+    .countdown-wrap { height: 3px; background: #e5e7eb; border-radius: 2px; margin-bottom: 14px; overflow: hidden; }
+    .countdown-bar { height: 100%; background: #2563eb; border-radius: 2px; width: 100%; transition: width 1s linear; }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    thead th { text-align: left; padding: 11px 12px; background: #f9fafb; color: #374151; font-weight: 600; font-size: 13px; border-bottom: 1px solid #e5e7eb; }
+    tbody td { padding: 11px 12px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #f9fafb; }
+    @keyframes rowHighlight { 0%{ background:#dbeafe; } 100%{ background:transparent; } }
+    tr.changed { animation: rowHighlight 2s ease-out; }
+
+    /* ── Badges ── */
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .badge.active  { background: #dcfce7; color: #166534; }
+    .badge.idle    { background: #fef3c7; color: #92400e; }
+    .badge.offline { background: #f3f4f6; color: #6b7280; }
+    .role-tag { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .role-tag.manager  { background: #dbeafe; color: #1d4ed8; }
+    .role-tag.employee { background: #f3e8ff; color: #7e22ce; }
+
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .btn:hover { background: #1d4ed8; }
+    .btn.sm { padding: 5px 10px; font-size: 12px; }
+    .btn.danger { background: #dc2626; }
+    .btn.danger:hover { background: #b91c1c; }
+    .btn.secondary { background: #f3f4f6; color: #374151; }
+    .btn.secondary:hover { background: #e5e7eb; }
+    .btn.outline { background: #fff; color: #2563eb; border: 1.5px solid #2563eb; }
+    .btn.outline:hover { background: #eff6ff; }
+    .btn.active-type { background: #2563eb; color: #fff; }
+
+    /* ── Search ── */
+    .search-wrap { position: relative; }
+    .search-wrap input { padding: 8px 12px 8px 34px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; outline: none; width: 220px; transition: border-color 0.2s; color: #111827; }
+    .search-wrap input:focus { border-color: #2563eb; }
+    .search-wrap::before { content: "🔍"; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; }
+
+    /* ── Quick actions ── */
+    .quick-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    /* ── Reports specific ── */
+    .report-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+    .type-toggle { display: flex; gap: 6px; }
+    .report-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .kpi-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; text-align: center; }
+    .kpi-card .kpi-label { font-size: 12px; color: #6b7280; font-weight: 500; margin-bottom: 6px; }
+    .kpi-card .kpi-value { font-size: 30px; font-weight: 700; color: #111827; }
+    .kpi-card .kpi-sub { font-size: 12px; color: #9ca3af; margin-top: 3px; }
+    .engage-score { color: #2563eb; }
+    .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 900px) { .report-grid { grid-template-columns: 1fr; } }
+    .emotion-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
+    .emotion-row:last-child { border-bottom: none; }
+    .emotion-label { width: 130px; flex-shrink: 0; }
+    .emo-bar-wrap { flex: 1; background: #f3f4f6; border-radius: 4px; height: 8px; }
+    .emo-bar { height: 8px; border-radius: 4px; background: #2563eb; transition: width 0.5s ease; }
+    .emo-count { width: 36px; text-align: right; color: #6b7280; font-size: 12px; font-weight: 600; }
+    .emo-pct { width: 42px; text-align: right; color: #9ca3af; font-size: 11px; }
+    .report-placeholder { text-align: center; padding: 48px 20px; color: #9ca3af; }
+    .report-placeholder .big-icon { font-size: 48px; margin-bottom: 14px; }
+    .report-placeholder p { font-size: 14px; margin-top: 6px; }
+    .report-loading { text-align: center; padding: 32px; color: #6b7280; font-size: 14px; }
+
+    /* ── Modal ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; justify-content: center; align-items: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 14px; padding: 28px; width: 100%; max-width: 430px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+    .modal h3 { font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 20px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; color: #6b7280; margin-bottom: 5px; font-weight: 500; }
+    .field input { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; color: #111827; }
+    .field input:focus { border-color: #2563eb; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .modal-actions .btn { flex: 1; justify-content: center; }
+    .modal-msg { font-size: 13px; margin-top: 8px; text-align: center; min-height: 18px; }
+
+    /* ── Settings ── */
+    .settings-form { max-width: 460px; }
+    .sf-group { margin-bottom: 16px; }
+    .sf-group label { display: block; font-size: 13px; color: #6b7280; margin-bottom: 5px; font-weight: 500; }
+    .sf-group input { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; color: #111827; }
+    .sf-group input:focus { border-color: #2563eb; }
+    .sf-group input:disabled { background: #f9fafb; color: #9ca3af; }
+    .sf-msg { font-size: 13px; margin-top: 6px; min-height: 18px; }
+
+    .state-cell { text-align: center; padding: 28px; color: #9ca3af; font-size: 14px; }
+    .state-cell.error { color: #ef4444; }
+
+    @media (max-width: 768px) {
+      .dashboard { flex-direction: column; }
+      .sidebar { width: 100%; min-width: unset; flex-direction: row; flex-wrap: wrap; padding: 16px; gap: 8px; }
+      .sidebar-brand { width: 100%; margin-bottom: 8px; }
+      .sidebar nav { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
+      .nav-item { padding: 8px 10px; font-size: 13px; }
+      .logout-wrap { width: 100%; padding-top: 0; border-top: none; }
+      .logout-btn { width: auto; padding: 8px 14px; }
+      .main { padding: 20px; }
+    }
+  
+    /* Team Reports */
+    .team-report-table td.team-cell { font-size: 13px; }
+    .team-detail-panel { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; margin-top: 12px; display: none; }
+    .team-detail-panel.open { display: block; }
+    .team-detail-panel h4 { font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 10px; }
+    .team-kpis { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+    .team-kpi { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 18px; text-align: center; }
+    .team-kpi .t-label { font-size: 11px; color: #6b7280; font-weight: 500; margin-bottom: 4px; }
+    .team-kpi .t-value { font-size: 22px; font-weight: 700; color: #111827; }
+    .emo-mini { display: flex; gap: 6px; flex-wrap: wrap; }
+    .emo-chip { font-size: 12px; background: #f3f4f6; border-radius: 20px; padding: 2px 10px; color: #374151; }
+
+  </style>
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- ══════════════════ SIDEBAR ══════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">🛡️ Admin Panel</div>
+    <nav>
+      <button class="nav-item active" data-view="viewDashboard">🏠 Dashboard</button>
+      <button class="nav-item" data-view="viewManagers">👔 Managers</button>
+      <button class="nav-item" data-view="viewEmployees">👤 Employees</button>
+      <button class="nav-item" data-view="viewReports">📊 Reports</button>
+      <button class="nav-item" data-view="viewSettings">⚙️ Settings</button>
+    </nav>
+    <div class="logout-wrap">
+      <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- ══════════════════ MAIN ══════════════════════ -->
+  <main class="main">
+    <div class="topbar">
+      <h1>Welcome, <span id="adminName">Admin</span> 👋</h1>
+      <span class="status-badge">🟢 System Active</span>
+    </div>
+
+    <!-- ───────── VIEW: DASHBOARD ───────── -->
+    <section class="view active" id="viewDashboard">
+      <div class="cards">
+        <div class="card"><h3>Total Managers</h3><p id="totalManagers">—</p></div>
+        <div class="card"><h3>Total Employees</h3><p id="totalEmployees">—</p></div>
+        <div class="card"><h3>Active Now</h3><p id="activeSessions">—</p></div>
+        <div class="card"><h3>System Alerts</h3><p>5 ⚠️</p></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <h2>All Users Activity</h2>
+          <div class="live-badge"><div class="live-dot"></div> LIVE — refreshes every 10s</div>
+        </div>
+        <div class="last-updated" id="lastUpdated">Last updated: —</div>
+        <div class="countdown-wrap"><div class="countdown-bar" id="countdownBar"></div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Emotion</th><th>Last Seen</th><th>Action</th></tr></thead>
+            <tbody id="activityTable"><tr><td colspan="7" class="state-cell">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h2>Quick Actions</h2></div>
+        <div class="quick-actions">
+          <button class="btn" id="openAddManager">➕ Add Manager</button>
+          <button class="btn" id="openAddEmployee">➕ Add Employee</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── VIEW: MANAGERS ───────── -->
+    <section class="view" id="viewManagers">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>👔 Managers</h2>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <div class="search-wrap"><input type="text" id="searchManager" placeholder="Search managers…" /></div>
+            <button class="btn" id="openAddManagerM">➕ Add Manager</button>
+            <button class="btn secondary" id="refreshManagers">🔄 Refresh</button>
+          </div>
+        </div>
+        <div class="last-updated" id="mgrLastUpdated">Last updated: —</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Status</th><th>Employees</th><th>Action</th></tr></thead>
+            <tbody id="managersTable"><tr><td colspan="6" class="state-cell">Loading managers…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── VIEW: EMPLOYEES ───────── -->
+    <section class="view" id="viewEmployees">
+      <div class="panel">
+        <div class="panel-header">
+          <h2>👤 Employees</h2>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <div class="search-wrap"><input type="text" id="searchEmployee" placeholder="Search employees…" /></div>
+            <button class="btn" id="openAddEmployeeE">➕ Add Employee</button>
+            <button class="btn secondary" id="refreshEmployees">🔄 Refresh</button>
+          </div>
+        </div>
+        <div class="last-updated" id="empLastUpdated">Last updated: —</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Status</th><th>Emotion</th><th>Manager</th><th>Action</th></tr></thead>
+            <tbody id="employeesTable"><tr><td colspan="7" class="state-cell">Loading employees…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────── VIEW: REPORTS ─────────
+         Calls: POST /admin-report  { email, type: 'weekly'|'monthly' }
+         Returns: { success, summary, engagementScore, data }
+    ── -->
+    <section class="view" id="viewReports">
+      <div class="panel">
+        <div class="panel-header"><h2>📊 Reports</h2></div>
+
+        <!-- Type selector + Load button -->
+        <div class="report-toolbar">
+          <div class="type-toggle">
+            <button class="btn active-type" id="btnWeekly"  data-type="weekly">📅 Weekly</button>
+            <button class="btn outline"     id="btnMonthly" data-type="monthly">📆 Monthly</button>
+          </div>
+          <button class="btn" id="loadReportBtn">🔍 Load Report</button>
+          <span id="reportPeriodLabel" style="font-size:13px;color:#6b7280;"></span>
+        </div>
+
+        <!-- Placeholder shown before first load -->
+        <div id="reportPlaceholder" class="report-placeholder">
+          <div class="big-icon">📊</div>
+          <strong>No report loaded yet</strong>
+          <p>Select a period above and click <em>Load Report</em> to fetch activity data.</p>
+        </div>
+
+        <!-- Loading spinner -->
+        <div id="reportLoading" class="report-loading" style="display:none;">⏳ Loading report data…</div>
+
+        <!-- Error state -->
+        <div id="reportError" class="state-cell error" style="display:none;"></div>
+
+        <!-- Report content (hidden until data arrives) -->
+        <div id="reportContent" style="display:none;">
+
+          <!-- KPI row -->
+          <div class="report-kpis">
+            <div class="kpi-card">
+              <div class="kpi-label">Engagement Score</div>
+              <div class="kpi-value engage-score" id="rEngagement">—</div>
+              <div class="kpi-sub">out of 100</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Total Records</div>
+              <div class="kpi-value" id="rTotal">—</div>
+              <div class="kpi-sub">activity entries</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Dominant Emotion</div>
+              <div class="kpi-value" id="rTopEmotion" style="font-size:22px;">—</div>
+              <div class="kpi-sub" id="rTopEmotionPct"></div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Unique Employees</div>
+              <div class="kpi-value" id="rUniqueEmp">—</div>
+              <div class="kpi-sub">tracked in period</div>
+            </div>
+          </div>
+
+          <!-- Emotion breakdown + recent activity -->
+          <div class="report-grid">
+
+            <!-- Emotion distribution from summary -->
+            <div>
+              <h3 style="font-size:16px;font-weight:700;color:#111827;margin-bottom:14px;">Emotion Breakdown</h3>
+              <div id="emotionBreakdown"></div>
+            </div>
+
+            <!-- Recent activity table from data[] -->
+            <div>
+              <h3 style="font-size:16px;font-weight:700;color:#111827;margin-bottom:14px;">Recent Activity <span style="font-size:12px;color:#9ca3af;font-weight:400;">(latest 20)</span></h3>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>#</th><th>Emotion</th><th>Date & Time</th></tr></thead>
+                  <tbody id="activityLog"></tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div><!-- /reportContent -->
+      </div>
+    </section>
+
+    <!-- ───────── VIEW: SETTINGS ───────── -->
+    <section class="view" id="viewSettings">
+      <div class="panel">
+        <div class="panel-header"><h2>⚙️ Settings</h2></div>
+        <div class="settings-form">
+          <div class="sf-group"><label>Full Name</label><input type="text" id="settingName" placeholder="Your name" /></div>
+          <div class="sf-group"><label>Email (read-only)</label><input type="email" id="settingEmail" disabled /></div>
+          <div class="sf-group"><label>New Password</label><input type="password" id="settingPw" placeholder="Leave blank to keep current" /></div>
+          <div class="sf-group"><label>Confirm New Password</label><input type="password" id="settingPwConfirm" placeholder="Repeat new password" /></div>
+          <div class="sf-msg" id="settingMsg"></div>
+          <button class="btn" id="settingSaveBtn">💾 Save Changes</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ══════ ADD MANAGER MODAL ══════ -->
+<div class="modal-overlay" id="modalManager">
+  <div class="modal">
+    <h3>➕ Add New Manager</h3>
+    <div class="field"><label>Full Name</label><input type="text" id="mgrName" placeholder="e.g. Saad" /></div>
+    <div class="field"><label>Email</label><input type="email" id="mgrEmail" placeholder="saad@company.com" /></div>
+    <div class="field"><label>Password</label><input type="password" id="mgrPassword" placeholder="Min 6 characters" /></div>
+    <div class="modal-msg" id="mgrMsg"></div>
+    <div class="modal-actions">
+      <button class="btn" id="submitMgr">Save Manager</button>
+      <button class="btn danger" id="closeMgr">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ ADD EMPLOYEE MODAL ══════ -->
+<div class="modal-overlay" id="modalEmployee">
+  <div class="modal">
+    <h3>➕ Add New Employee</h3>
+    <div class="field"><label>Full Name</label><input type="text" id="empName" placeholder="e.g. Ahmad" /></div>
+    <div class="field"><label>Email</label><input type="email" id="empEmail" placeholder="ahmad@company.com" /></div>
+    <div class="field"><label>Password</label><input type="password" id="empPassword" placeholder="Min 6 characters" /></div>
+    <div class="field"><label>Assign to Manager (email) — optional</label><input type="email" id="empManagerEmail" placeholder="manager@company.com" /></div>
+    <div class="modal-msg" id="empMsg"></div>
+    <div class="modal-actions">
+      <button class="btn" id="submitEmp">Save Employee</button>
+      <button class="btn danger" id="closeEmp">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var BASE = 'http://localhost:3000';
+  var TICK = 10000;
+
+  var role  = localStorage.getItem('role');
+  var email = localStorage.getItem('email');
+  var name  = localStorage.getItem('name');
+
+  if (!role || role !== 'admin') { window.location.href = 'login.html'; return; }
+  if (name) document.getElementById('adminName').textContent = name;
+
+  var store      = { managers: [], employees: [] };
+  var prevSnap   = {};
+  var reportType = 'weekly';   // active report type
+
+  /* ── Helpers ── */
+  var EMOTIONS = {
+    happy:'😊 Happy', sad:'😢 Sad', angry:'😠 Angry', neutral:'😐 Neutral',
+    tired:'😴 Tired', surprised:'😲 Surprised', fearful:'😨 Fearful', disgusted:'🤢 Disgusted'
+  };
+  function emojiLabel(e) { return EMOTIONS[(e||'').toLowerCase()] || ('😐 '+(e||'Neutral')); }
+  function fmt(d)  { return new Date(d).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+  function fmtDt(d){ var dt=new Date(d); return dt.toLocaleDateString()+' '+dt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+  function statusBadge(s) {
+    var c = s==='active'?'active':s==='idle'?'idle':'offline';
+    return '<span class="badge '+c+'">'+(s||'unknown')+'</span>';
+  }
+  function post(path, body) {
+    return fetch(BASE + path, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    }).then(function(r){ return r.json(); });
+  }
+
+  /* ════════════════════════════════════════
+     FETCH: /get-managers  { email }
+  ════════════════════════════════════════ */
+  function fetchManagers() {
+    return post('/get-managers', { email: email })
+      .then(function(d){ store.managers = d.success ? d.managers : []; return store.managers; });
+  }
+
+  /* ════════════════════════════════════════
+     FETCH: /get-employees  { email, role:'admin' }
+  ════════════════════════════════════════ */
+  function fetchEmployees() {
+    return post('/get-employees', { email: email, role: 'admin' })
+      .then(function(d){ store.employees = d.success ? d.employees : []; return store.employees; });
+  }
+
+  /* ════════════════════════════════════════
+     FETCH: /admin-report  { email, type }
+     Returns: { success, summary, engagementScore, data }
+       summary         — { emotion: count, … }
+       engagementScore — Number
+       data            — Activity[]  { employeeId, emotion, createdAt }
+  ════════════════════════════════════════ */
+  function fetchReport(type) {
+    return post('/admin-report', { email: email, type: type });
+  }
+
+  /* ════════════════════════════════════════
+     RENDER: Dashboard activity table
+  ════════════════════════════════════════ */
+  function renderActivity(managers, employees, now) {
+    document.getElementById('totalManagers').textContent  = managers.length;
+    document.getElementById('totalEmployees').textContent = employees.length;
+    var active = managers.concat(employees).filter(function(u){ return u.status==='active'; }).length;
+    document.getElementById('activeSessions').textContent = active;
+    document.getElementById('lastUpdated').textContent = 'Last updated: ' + fmt(now);
+
+    var all = managers.map(function(m){ return Object.assign({},m,{_role:'manager'}); })
+      .concat(employees.map(function(e){ return Object.assign({},e,{_role:'employee'}); }));
+
+    var tbody = document.getElementById('activityTable');
+    if (!all.length) { tbody.innerHTML = '<tr><td colspan="7" class="state-cell">No users found</td></tr>'; return; }
+
+    tbody.innerHTML = all.map(function(u) {
+      var id   = String(u._id);
+      var snap = id+'_'+u.status+'_'+(u.emotion||'');
+      var chg  = prevSnap[id]!==undefined && prevSnap[id]!==snap;
+      prevSnap[id] = snap;
+      var delBtn = u._role==='employee'
+        ? '<button class="btn danger sm" onclick="deleteEmployee(\''+id+'\')">🗑</button>'
+        : '<button class="btn danger sm" onclick="deleteManager(\''+id+'\')">🗑</button>';
+      return '<tr class="'+(chg?'changed':'')+'">'
+        +'<td>'+(u.name||'—')+'</td>'
+        +'<td style="color:#6b7280;font-size:13px;">'+(u.email||'—')+'</td>'
+        +'<td><span class="role-tag '+u._role+'">'+u._role+'</span></td>'
+        +'<td>'+statusBadge(u.status)+'</td>'
+        +'<td>'+emojiLabel(u.emotion)+'</td>'
+        +'<td style="color:#9ca3af;font-size:12px;">'+fmt(now)+'</td>'
+        +'<td>'+delBtn+'</td>'
+        +'</tr>';
+    }).join('');
+  }
+
+  /* ════════════════════════════════════════
+     RENDER: Managers view
+  ════════════════════════════════════════ */
+  function renderManagers() {
+    var filter = (document.getElementById('searchManager').value||'').toLowerCase();
+    var now    = new Date();
+    var list   = store.managers.filter(function(m){
+      return !filter || (m.name||'').toLowerCase().includes(filter) || (m.email||'').toLowerCase().includes(filter);
+    });
+    document.getElementById('mgrLastUpdated').textContent = 'Last updated: ' + fmt(now);
+    var countMap = {};
+    store.employees.forEach(function(e){ var mid=String(e.managerId); countMap[mid]=(countMap[mid]||0)+1; });
+    var tbody = document.getElementById('managersTable');
+    if (!list.length) { tbody.innerHTML='<tr><td colspan="6" class="state-cell">'+(filter?'No match.':'No managers found.')+'</td></tr>'; return; }
+    tbody.innerHTML = list.map(function(m,i){
+      var id=String(m._id), cnt=countMap[id]||0;
+      return '<tr><td style="color:#9ca3af;font-size:12px;">'+(i+1)+'</td>'
+        +'<td><strong>'+(m.name||'—')+'</strong></td>'
+        +'<td style="color:#6b7280;font-size:13px;">'+(m.email||'—')+'</td>'
+        +'<td>'+statusBadge(m.status)+'</td>'
+        +'<td><span class="badge active">'+cnt+' emp.</span></td>'
+        +'<td><button class="btn danger sm" onclick="deleteManager(\''+id+'\')">🗑 Delete</button></td></tr>';
+    }).join('');
+  }
+
+  /* ════════════════════════════════════════
+     RENDER: Employees view
+  ════════════════════════════════════════ */
+  function renderEmployees() {
+    var filter = (document.getElementById('searchEmployee').value||'').toLowerCase();
+    var now    = new Date();
+    var list   = store.employees.filter(function(e){
+      return !filter || (e.name||'').toLowerCase().includes(filter) || (e.email||'').toLowerCase().includes(filter);
+    });
+    document.getElementById('empLastUpdated').textContent = 'Last updated: ' + fmt(now);
+    var mgrMap = {};
+    store.managers.forEach(function(m){ mgrMap[String(m._id)] = m.name||m.email; });
+    var tbody = document.getElementById('employeesTable');
+    if (!list.length) { tbody.innerHTML='<tr><td colspan="7" class="state-cell">'+(filter?'No match.':'No employees found.')+'</td></tr>'; return; }
+    tbody.innerHTML = list.map(function(e,i){
+      var id=String(e._id), mName=e.managerId?(mgrMap[String(e.managerId)]||'Unknown'):'—';
+      return '<tr><td style="color:#9ca3af;font-size:12px;">'+(i+1)+'</td>'
+        +'<td><strong>'+(e.name||'—')+'</strong></td>'
+        +'<td style="color:#6b7280;font-size:13px;">'+(e.email||'—')+'</td>'
+        +'<td>'+statusBadge(e.status)+'</td>'
+        +'<td>'+emojiLabel(e.emotion)+'</td>'
+        +'<td style="font-size:13px;">'+mName+'</td>'
+        +'<td><button class="btn danger sm" onclick="deleteEmployee(\''+id+'\')">🗑 Delete</button></td></tr>';
+    }).join('');
+  }
+
+  /* ════════════════════════════════════════
+     RENDER: Reports view
+     Uses response from POST /admin-report
+       res.summary         = { emotion: count }
+       res.engagementScore = Number
+       res.data            = Activity[]
+  ════════════════════════════════════════ */
+  function renderReport(res) {
+    var summary         = res.summary         || {};
+    var engagementScore = res.engagementScore != null ? res.engagementScore : '—';
+    var data            = res.data            || [];
+
+    /* KPI: total records */
+    var total = data.length;
+    /* KPI: unique employees */
+    var unique = (new Set(data.map(function(r){ return String(r.employeeId); }))).size;
+    /* KPI: dominant emotion */
+    var summaryEntries = Object.keys(summary);
+    var topEmotion = summaryEntries.length
+      ? summaryEntries.reduce(function(a,b){ return summary[a]>summary[b]?a:b; })
+      : null;
+    var topPct = (topEmotion && total)
+      ? Math.round((summary[topEmotion]/total)*100)+'% of entries'
+      : '';
+
+    document.getElementById('rEngagement').textContent  = typeof engagementScore==='number' ? engagementScore.toFixed(1) : engagementScore;
+    document.getElementById('rTotal').textContent       = total;
+    document.getElementById('rTopEmotion').textContent  = topEmotion ? emojiLabel(topEmotion) : '—';
+    document.getElementById('rTopEmotionPct').textContent = topPct;
+    document.getElementById('rUniqueEmp').textContent   = unique;
+
+    /* Emotion breakdown bars */
+    var emoDiv = document.getElementById('emotionBreakdown');
+    if (!summaryEntries.length) {
+      emoDiv.innerHTML = '<div class="state-cell" style="padding:12px;">No emotion data in this period.</div>';
+    } else {
+      var sorted = summaryEntries.slice().sort(function(a,b){ return summary[b]-summary[a]; });
+      var max    = summary[sorted[0]];
+      emoDiv.innerHTML = sorted.map(function(em) {
+        var cnt  = summary[em];
+        var pct  = max ? Math.round((cnt/max)*100) : 0;
+        var pctT = total ? Math.round((cnt/total)*100) : 0;
+        return '<div class="emotion-row">'
+          +'<span class="emotion-label">'+emojiLabel(em)+'</span>'
+          +'<div class="emo-bar-wrap"><div class="emo-bar" style="width:'+pct+'%;"></div></div>'
+          +'<span class="emo-count">'+cnt+'</span>'
+          +'<span class="emo-pct">'+pctT+'%</span>'
+          +'</div>';
+      }).join('');
+    }
+
+    /* Recent activity table (latest 20) */
+    var recent = data.slice().sort(function(a,b){ return new Date(b.createdAt)-new Date(a.createdAt); }).slice(0,20);
+    var logTbody = document.getElementById('activityLog');
+    if (!recent.length) {
+      logTbody.innerHTML = '<tr><td colspan="3" class="state-cell">No activity records.</td></tr>';
+    } else {
+      logTbody.innerHTML = recent.map(function(r,i){
+        return '<tr>'
+          +'<td style="color:#9ca3af;font-size:12px;">'+(i+1)+'</td>'
+          +'<td>'+emojiLabel(r.emotion)+'</td>'
+          +'<td style="color:#9ca3af;font-size:12px;">'+fmtDt(r.createdAt)+'</td>'
+          +'</tr>';
+      }).join('');
+    }
+  }
+
+  /* ════════════════════════════════════════
+     LOAD ALL DATA  (dashboard + managers + employees)
+  ════════════════════════════════════════ */
+  function loadAllData() {
+    Promise.all([fetchManagers(), fetchEmployees()])
+      .then(function(){
+        var now = new Date();
+        renderActivity(store.managers, store.employees, now);
+        renderManagers();
+        renderEmployees();
+      })
+      .catch(function(err){
+        console.error(err);
+        var errHTML = '<tr><td colspan="7" class="state-cell error">Failed to load — is server running?</td></tr>';
+        ['activityTable','managersTable','employeesTable'].forEach(function(id){
+          document.getElementById(id).innerHTML = errHTML;
+        });
+        ['totalManagers','totalEmployees','activeSessions'].forEach(function(id){
+          document.getElementById(id).textContent = 'ERR';
+        });
+      });
+  }
+
+  /* ── Auto-refresh ── */
+  var refreshInterval = setInterval(loadAllData, TICK);
+  var countdownMs = TICK;
+  var bar = document.getElementById('countdownBar');
+  setInterval(function(){ countdownMs-=1000; if(countdownMs<0)countdownMs=TICK; bar.style.width=Math.max((countdownMs/TICK)*100,0)+'%'; }, 1000);
+
+  /* ════════════════════════════════════════
+     REPORTS: type toggle + load button
+  ════════════════════════════════════════ */
+  function setReportType(type) {
+    reportType = type;
+    document.getElementById('btnWeekly').className  = 'btn ' + (type==='weekly'  ? 'active-type' : 'outline');
+    document.getElementById('btnMonthly').className = 'btn ' + (type==='monthly' ? 'active-type' : 'outline');
+  }
+
+  document.getElementById('btnWeekly').addEventListener('click',  function(){ setReportType('weekly');  });
+  document.getElementById('btnMonthly').addEventListener('click', function(){ setReportType('monthly'); });
+
+  document.getElementById('loadReportBtn').addEventListener('click', function() {
+    var label = reportType === 'weekly' ? 'Last 7 days' : 'Last 30 days';
+    document.getElementById('reportPeriodLabel').textContent = '📅 ' + label;
+
+    /* Toggle visibility */
+    document.getElementById('reportPlaceholder').style.display = 'none';
+    document.getElementById('reportError').style.display       = 'none';
+    document.getElementById('reportContent').style.display     = 'none';
+    document.getElementById('reportLoading').style.display     = 'block';
+
+    fetchReport(reportType)
+      .then(function(res) {
+        document.getElementById('reportLoading').style.display = 'none';
+        if (!res.success) {
+          document.getElementById('reportError').style.display = 'block';
+          document.getElementById('reportError').textContent   = '❌ ' + (res.message || 'Failed to load report.');
+          return;
+        }
+        document.getElementById('reportContent').style.display = 'block';
+        renderReport(res);
+      })
+      .catch(function() {
+        document.getElementById('reportLoading').style.display = 'none';
+        document.getElementById('reportError').style.display   = 'block';
+        document.getElementById('reportError').textContent     = '❌ Cannot reach server. Is server.js running?';
+      });
+  });
+
+  /* ── Sidebar navigation ── */
+  document.querySelectorAll('.nav-item[data-view]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.nav-item').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      var target = btn.getAttribute('data-view');
+      document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+      document.getElementById(target).classList.add('active');
+      if (target==='viewManagers')  renderManagers();
+      if (target==='viewEmployees') renderEmployees();
+    });
+  });
+
+  /* ── Search filters ── */
+  document.getElementById('searchManager').addEventListener('input',  renderManagers);
+  document.getElementById('searchEmployee').addEventListener('input', renderEmployees);
+
+  /* ── Manual refresh ── */
+  document.getElementById('refreshManagers').addEventListener('click',  function(){ Promise.all([fetchManagers(),fetchEmployees()]).then(function(){ renderManagers(); }); });
+  document.getElementById('refreshEmployees').addEventListener('click', function(){ Promise.all([fetchManagers(),fetchEmployees()]).then(function(){ renderEmployees(); }); });
+
+  /* ── Delete ── */
+  window.deleteEmployee = function(id) {
+    if (!confirm('Delete this employee?')) return;
+    post('/delete-employee',{ employeeId:id, adminEmail:email }).then(function(d){ if(d.success) loadAllData(); });
+  };
+  window.deleteManager = function(id) {
+    if (!confirm('Delete this manager?')) return;
+    post('/delete-manager',{ managerId:id, adminEmail:email }).then(function(d){ if(d.success) loadAllData(); });
+  };
+
+  /* ── Add Manager Modal ── */
+  var modalMgr = document.getElementById('modalManager');
+  function openMgr()  { modalMgr.classList.add('open'); }
+  function closeMgr() { modalMgr.classList.remove('open'); document.getElementById('mgrMsg').textContent=''; }
+  document.getElementById('openAddManager').addEventListener('click', openMgr);
+  document.getElementById('openAddManagerM').addEventListener('click', openMgr);
+  document.getElementById('closeMgr').addEventListener('click', closeMgr);
+  document.getElementById('submitMgr').addEventListener('click', function() {
+    var n=document.getElementById('mgrName').value.trim(), e=document.getElementById('mgrEmail').value.trim(), p=document.getElementById('mgrPassword').value.trim();
+    var msg=document.getElementById('mgrMsg');
+    if(!n||!e||!p){ msg.style.color='#ef4444'; msg.textContent='All fields required.'; return; }
+    if(p.length<6){ msg.style.color='#ef4444'; msg.textContent='Password ≥ 6 chars.'; return; }
+    msg.style.color='#6b7280'; msg.textContent='Saving…';
+    post('/add-manager',{name:n,email:e,password:p,adminEmail:email}).then(function(d){
+      if(d.success){ msg.style.color='#16a34a'; msg.textContent='Added ✅'; ['mgrName','mgrEmail','mgrPassword'].forEach(function(i){document.getElementById(i).value='';}); setTimeout(function(){closeMgr();loadAllData();},900); }
+      else{ msg.style.color='#ef4444'; msg.textContent=d.message||'Error'; }
+    }).catch(function(){ msg.style.color='#ef4444'; msg.textContent='Server error ❌'; });
+  });
+
+  /* ── Add Employee Modal ── */
+  var modalEmp = document.getElementById('modalEmployee');
+  function openEmp()  { modalEmp.classList.add('open'); }
+  function closeEmp() { modalEmp.classList.remove('open'); document.getElementById('empMsg').textContent=''; }
+  document.getElementById('openAddEmployee').addEventListener('click', openEmp);
+  document.getElementById('openAddEmployeeE').addEventListener('click', openEmp);
+  document.getElementById('closeEmp').addEventListener('click', closeEmp);
+  document.getElementById('submitEmp').addEventListener('click', function() {
+    var n=document.getElementById('empName').value.trim(), e=document.getElementById('empEmail').value.trim();
+    var p=document.getElementById('empPassword').value.trim(), me=document.getElementById('empManagerEmail').value.trim();
+    var msg=document.getElementById('empMsg');
+    if(!n||!e||!p){ msg.style.color='#ef4444'; msg.textContent='Name, email & password required.'; return; }
+    if(p.length<6){ msg.style.color='#ef4444'; msg.textContent='Password ≥ 6 chars.'; return; }
+    msg.style.color='#6b7280'; msg.textContent='Saving…';
+    post('/add-employee',{name:n,email:e,password:p,adminEmail:email,managerEmail:me||null}).then(function(d){
+      if(d.success){ msg.style.color='#16a34a'; msg.textContent='Added ✅'; ['empName','empEmail','empPassword','empManagerEmail'].forEach(function(i){document.getElementById(i).value='';}); setTimeout(function(){closeEmp();loadAllData();},900); }
+      else{ msg.style.color='#ef4444'; msg.textContent=d.message||'Error'; }
+    }).catch(function(){ msg.style.color='#ef4444'; msg.textContent='Server error ❌'; });
+  });
+
+  /* ── Settings ── */
+  document.getElementById('settingEmail').value = email || '';
+  document.getElementById('settingName').value  = name  || '';
+  document.getElementById('settingSaveBtn').addEventListener('click', function() {
+    var n=document.getElementById('settingName').value.trim();
+    var pw=document.getElementById('settingPw').value, cpw=document.getElementById('settingPwConfirm').value;
+    var msg=document.getElementById('settingMsg');
+    msg.style.color='#6b7280'; msg.textContent='';
+    if(!n){ msg.style.color='#ef4444'; msg.textContent='Name cannot be empty.'; return; }
+    if(pw&&pw.length<6){ msg.style.color='#ef4444'; msg.textContent='Password ≥ 6 chars.'; return; }
+    if(pw!==cpw){ msg.style.color='#ef4444'; msg.textContent='Passwords do not match.'; return; }
+    msg.textContent='Saving…';
+    var payload={email:email,name:n}; if(pw) payload.newPassword=pw;
+    post('/update-admin',payload).then(function(d){
+      if(d.success){ localStorage.setItem('name',n); document.getElementById('adminName').textContent=n; document.getElementById('settingPw').value=''; document.getElementById('settingPwConfirm').value=''; msg.style.color='#16a34a'; msg.textContent='Saved ✅'; }
+      else{ msg.style.color='#ef4444'; msg.textContent=d.message||'Error'; }
+    }).catch(function(){ msg.style.color='#ef4444'; msg.textContent='Server error ❌'; });
+  });
+
+  /* ── Logout ── */
+  document.getElementById('logoutBtn').addEventListener('click', function() {
+    clearInterval(refreshInterval); localStorage.clear(); window.location.href='login.html';
+  });
+
+  /* ── Initial load ── */
+  loadAllData();
+
+})();
+</script>
+
+  <!-- Socket.IO real-time push -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    socket.on("activity-update", () => loadAllData());
+  </script>
+
+</body>
+</html>

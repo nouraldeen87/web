@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="logo.png">
+  <title>About - Employee Monitoring System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, Arial, sans-serif;
+      background-color: #ffffff;
+      background-image:
+        radial-gradient(ellipse 90% 70% at 50% 0%, rgba(0,127,255,0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 100%, rgba(0,102,204,0.08) 0%, transparent 60%);
+      background-attachment: fixed;
+      color: #1e293b;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+      background-size: 64px 64px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: #007fff;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      position: relative;
+      z-index: 10;
+      box-shadow: 0 2px 16px rgba(0,127,255,0.2);
+    }
+
+    .navbar h1 {
+      font-size: 18px;
+      margin: 0;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .nav-links a {
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+      margin-left: 15px;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: #ffffff; }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 60px 20px 50px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h2 {
+      font-size: clamp(22px, 4vw, 32px);
+      margin-bottom: 14px;
+      color: #111827;
+      font-weight: 700;
+    }
+
+    .hero p {
+      color: #4b6a9b;
+      max-width: 600px;
+      margin: auto;
+      font-size: 15px;
+    }
+
+    /* Sections */
+    .section {
+      padding: 30px 20px;
+      max-width: 1000px;
+      margin: auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+      color: #111827;
+      font-weight: 700;
+    }
+
+    .section > p {
+      color: #4b6a9b;
+      font-size: 15px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 18px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,127,255,0.1);
+      box-shadow: 0 4px 16px rgba(0,127,255,0.08);
+      color: #1e293b;
+      font-size: 15px;
+      font-weight: 500;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,127,255,0.15);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+      color: #6b8ab0;
+      border-top: 1px solid rgba(0,127,255,0.1);
+      margin-top: 30px;
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <h1>Smart Monitoring System</h1>
+    <div class="nav-links">
+      <a href="login.html">Login</a>
+      <a href="#">Terms</a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h2>Smart Real-Time Employee Activity &amp; Emotion Monitoring</h2>
+    <p>
+      A powerful system designed to monitor employee activity and analyze emotions
+      in real-time to improve productivity, security, and workplace well-being.
+    </p>
+  </div>
+
+  <!-- About -->
+  <div class="section">
+    <h3>About the System</h3>
+    <p>
+      This system uses advanced technologies such as Artificial Intelligence and
+      real-time data processing to track employee performance, detect emotional states,
+      and provide insights for better decision-making.
+    </p>
+  </div>
+
+  <!-- Features -->
+  <div class="section">
+    <h3>Key Features</h3>
+    <div class="cards">
+      <div class="card">📊 Real-Time Activity Tracking</div>
+      <div class="card">😊 Emotion Detection using AI</div>
+      <div class="card">🔐 Secure Data Handling</div>
+      <div class="card">📈 Performance Analytics Dashboard</div>
+      <div class="card">⚡ Fast &amp; Scalable System</div>
+      <div class="card">🌐 Accessible from Anywhere</div>
+    </div>
+  </div>
+
+  <!-- How it Works -->
+  <div class="section">
+    <h3>How It Works</h3>
+    <p>
+      The system collects real-time data from user activity and uses machine learning
+      models to analyze behavior and emotions. The results are displayed in a dashboard
+      where managers can monitor performance and take actions accordingly.
+    </p>
+  </div>
+
+  <!-- Benefits -->
+  <div class="section">
+    <h3>Benefits</h3>
+    <div class="cards">
+      <div class="card">✔ Improve employee productivity</div>
+      <div class="card">✔ Enhance workplace safety</div>
+      <div class="card">✔ Better decision making</div>
+      <div class="card">✔ Reduce risks and inefficiencies</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    © 2026 Smart Monitoring System | All Rights Reserved
+  </div>
+
+</body>
+</html>

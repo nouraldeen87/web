@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="logo.png">
+  <title>Terms & Conditions Agreement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, Arial, sans-serif;
+      background-color: #ffffff;
+      background-image:
+        radial-gradient(ellipse 90% 70% at 50% 0%, rgba(0,127,255,0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 100%, rgba(0,102,204,0.08) 0%, transparent 60%);
+      background-attachment: fixed;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+      background-size: 64px 64px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 700px;
+      background: #007fff;
+      border: 1px solid #ffffff;
+      border-radius: 16px;
+      padding: 28px 24px;
+      box-shadow: 0 16px 40px rgba(0, 127, 255, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      backdrop-filter: blur(12px) saturate(150%);
+      -webkit-backdrop-filter: blur(12px) saturate(150%);
+    }
+
+    h2 {
+      text-align: center;
+      font-size: clamp(18px, 2.5vw, 24px);
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .sep {
+      border: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    }
+
+    .terms-box {
+      height: 260px;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      scroll-behavior: smooth;
+    }
+
+    .terms-box::-webkit-scrollbar { width: 6px; }
+    .terms-box::-webkit-scrollbar-track { background: transparent; }
+    .terms-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.35); border-radius: 99px; }
+
+    .terms-box p { margin-bottom: 12px; }
+    .terms-box p:last-child { margin-bottom: 0; }
+
+    .terms-box strong {
+      color: #ffffff;
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 700;
+      opacity: 0.95;
+    }
+
+    .agree {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.85);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .agree input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ffffff;
+      border-radius: 12px;
+      background: #007fff;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 15px;
+      font-family: inherit;
+      cursor: not-allowed;
+      opacity: 0.45;
+      transition: opacity 0.2s, transform 0.1s, box-shadow 0.15s, background 0.15s;
+      letter-spacing: 0.2px;
+    }
+
+    .btn.active {
+      opacity: 1;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn.active:hover  { transform: translateY(-1px); background: #0066cc; box-shadow: 0 8px 24px rgba(0,127,255,0.45); }
+    .btn.active:active { transform: translateY(0); }
+    .btn:disabled { cursor: not-allowed; }
+
+    .message {
+      font-size: 13px;
+      text-align: center;
+      min-height: 20px;
+      color: #ffffff;
+      transition: color 0.2s;
+    }
+
+    .card-footer {
+      text-align: center;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.65);
+      border-top: 1px solid rgba(255, 255, 255, 0.25);
+      padding-top: 12px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .terms-box { height: 200px; }
+      .container { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <h2>📋 Terms &amp; Conditions</h2>
+
+    <hr class="sep" />
+
+    <div class="terms-box" id="termsBox">
+      <p>
+        Welcome to the <strong>Smart Real-Time Employee Activity and Emotion Monitoring System.</strong>
+        By accessing or using this system, you agree to comply with and be bound by the following terms and conditions.
+        Please read them carefully before proceeding.
+      </p>
+
+      <p>
+        <strong>1. Authorized Use</strong>
+        You agree to use this system only for authorized company purposes. Any unauthorized use is strictly prohibited
+        and may result in disciplinary action.
+      </p>
+
+      <p>
+        <strong>2. Activity Monitoring</strong>
+        Your activity, including but not limited to work status, emotional state, and session duration,
+        may be monitored in real time for security, performance evaluation, and well-being improvement.
+      </p>
+
+      <p>
+        <strong>3. Data Collection</strong>
+        All data collected will be handled according to the company's data privacy policy. Your information
+        will not be shared with third parties without your consent, except where required by law.
+      </p>
+
+      <p>
+        <strong>4. Emotion Detection</strong>
+        By using this system you consent to facial emotion analysis conducted solely within the scope of
+        workplace productivity monitoring. This data is stored securely and accessible only to authorized managers and admins.
+      </p>
+
+      <p>
+        <strong>5. Security Responsibilities</strong>
+        You are responsible for keeping your credentials confidential. Do not share your login details with
+        anyone. Report any suspicious activity to your administrator immediately.
+      </p>
+
+      <p>
+        <strong>6. Policy Updates</strong>
+        The company reserves the right to update these terms at any time. Continued use of the system
+        following any changes constitutes your acceptance of the revised terms.
+      </p>
+
+      <p>
+        <strong>7. Compliance</strong>
+        Failure to comply with these terms may result in suspension of access, disciplinary measures,
+        or legal action depending on the severity of the violation.
+      </p>
+
+      <p>By checking the box below, you confirm that you have read, understood, and agreed to all of the above terms.</p>
+    </div>
+
+    <div class="agree">
+      <input type="checkbox" id="agreeCheck" />
+      <label for="agreeCheck">I have read and agree to the Terms &amp; Conditions</label>
+    </div>
+
+    <button class="btn" id="acceptBtn" disabled>Accept &amp; Continue</button>
+
+    <div class="message" id="message"></div>
+
+    <footer class="card-footer">
+      &copy; <span id="year"></span> TechSphere Solutions &nbsp;&bull;&nbsp; Smart Monitoring System
+    </footer>
+
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const checkbox  = document.getElementById('agreeCheck');
+      const button    = document.getElementById('acceptBtn');
+      const message   = document.getElementById('message');
+
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      checkbox.addEventListener('change', function () {
+        if (checkbox.checked) {
+          button.disabled = false;
+          button.classList.add('active');
+        } else {
+          button.disabled = true;
+          button.classList.remove('active');
+        }
+      });
+
+      button.addEventListener('click', function () {
+        const email = localStorage.getItem('email');
+        const role  = localStorage.getItem('role');
+
+        if (!email || !role) {
+          setMsg('Session expired. Please login again.', '#ffe0e0');
+          setTimeout(function () {
+            window.location.href = 'login.html';
+          }, 1200);
+          return;
+        }
+
+        setMsg('Saving acceptance...', 'rgba(255,255,255,0.85)');
+        button.disabled = true;
+        button.classList.remove('active');
+
+        fetch('http://localhost:3000/accept-terms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, role: role })
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+
+          if (!data.success) {
+            setMsg('Error saving acceptance ❌', '#ffe0e0');
+            button.disabled = false;
+            button.classList.add('active');
+            return;
+          }
+
+          localStorage.setItem('hasAcceptedTerms', 'true');
+          setMsg('Accepted! Redirecting...', '#e0f0ff');
+
+          setTimeout(function () {
+            if (role === 'admin') {
+              window.location.href = 'admin_dashboard.html';
+            } else if (role === 'manager') {
+              window.location.href = 'manager_dashboard.html';
+            } else {
+              window.location.href = 'employee_dashboard.html';
+            }
+          }, 800);
+        })
+        .catch(function () {
+          setMsg('Cannot reach server. Is server.js running? ❌', '#ffe0e0');
+          button.disabled = false;
+          button.classList.add('active');
+        });
+      });
+
+      function setMsg(text, color) {
+        message.textContent = text;
+        message.style.color = color;
+      }
+
+    })();
+  </script>
+
+</body>
+</html>
